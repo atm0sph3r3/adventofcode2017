@@ -6,24 +6,12 @@ class Layer(object):
         self.direction = 1
 
 
-layers = []
-
-with open("resources/day13", "rt") as f:
-    count = 0
-    for line in f:
-        split = line.split(': ')
-        while int(split[0]) > count:
-            layers.append(Layer(count, 0))
-            count += 1
-
-        layers.append(Layer(int(split[0]), int(split[1])))
-        count += 1
-
+def get_caught(layers, offset):
     caught = 0
     for i in range(len(layers)):
         current_layer = layers[i]
         if current_layer.current_position == 0:
-            caught = current_layer.size * current_layer.layer
+            caught += current_layer.size * current_layer.layer
 
         for j in range(i+1, len(layers)):
             next_layer = layers[j]
@@ -37,7 +25,23 @@ with open("resources/day13", "rt") as f:
                 next_layer.direction = 1
             else:
                 next_layer.current_position = next_position
+    return caught
 
+
+layers = []
+
+with open("resources/day13", "rt") as f:
+    count = 0
+    for line in f:
+        split = line.split(': ')
+        while int(split[0]) > count:
+            layers.append(Layer(count, 0))
+            count += 1
+
+        layers.append(Layer(int(split[0]), int(split[1])))
+        count += 1
+
+    caught = get_caught(layers, 0)
     print(caught)
 
 
