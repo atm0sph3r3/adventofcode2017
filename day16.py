@@ -4,12 +4,6 @@ def swap(start, end, programs):
     programs[end] = temp
 
 
-def print_programs(programs):
-    for each_program in programs:
-        print(each_program, end="")
-    print()
-
-
 with open("resources/day16", "rt") as f:
     for line in f:
         programs = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p']
@@ -45,7 +39,6 @@ with open("resources/day16", "rt") as f:
                         elif end == programs[index]:
                             end_index = index
                     swap(start_index, end_index, programs)
-        print_programs(programs)
-
+        print(''.join(programs))
 
 
