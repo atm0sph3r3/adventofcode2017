@@ -1,58 +1,60 @@
-def read_instructions(registers, instructions):
-    current_instruction = 0
-    mul_count = 0
-
-    while current_instruction < len(instructions):
-        print(current_instruction)
-        action = instructions[current_instruction][0]
-        register = instructions[current_instruction][1]
-
-        if len(instructions[current_instruction]) == 3:
-            value = instructions[current_instruction][2]
-        else:
-            value = instructions[current_instruction][1]
-
-        value = get_value(registers, value)
-
-        if action == 'set':
-            registers[register] = value
-        elif action == 'sub':
-            registers[register] -= value
-        elif action == 'mul':
-            registers[register] *= value
-            mul_count += 1
-        elif action == 'jnz':
-            if (register.isdigit() and int(register) != 0) or registers[register] != 0:
-                current_instruction += value
-            else:
-                current_instruction += 1
-
-        if action != 'jnz':
-            current_instruction += 1
-
-    return registers['h']
-
-
-def get_value(registers, value):
-    if value.startswith('-') or value.isdigit():
-        new_value = int(value)
-    else:
-        new_value = registers[value]
-
-    return new_value
-
-
-registers = dict()
-instructions = list()
-
-with open("resources/day22", "rt") as f:
+with open('resources/day23', 'r') as f:
+    mapping = []
     for line in f:
-        split = line.split()
-        instructions.append(split)
-        if split[1].isalpha():
-            if split[1] == 'a':
-                registers['a'] = 1
-            else:
-                registers[split[1]] = 0
+        row = list(line.strip())
+        mapping.append(row)
 
-    print(read_instructions(registers, instructions))
+padded_mapping = []
+infected = '#'
+clean = '.'
+weakened = 'w'
+flagged = 'f'
+
+direction = -1
+count = 0
+
+padding = 1000
+
+for _ in range(padding):
+    padded_mapping.append(['.'] * (padding * 2 + len(mapping)))
+
+for each in mapping:
+    row = ['.'] * padding
+    row.extend(each)
+    row.extend(['.'] * padding)
+    padded_mapping.append(row)
+
+for _ in range(padding):
+    padded_mapping.append(['.'] * (padding * 2 + len(mapping)))
+
+
+position = complex(len(padded_mapping) // 2, len(padded_mapping[0]) // 2)
+
+
+def get_state():
+    return padded_mapping[int(position.real)][int(position.imag)]
+
+
+def set_state(state):
+    padded_mapping[int(position.real)][int(position.imag)] = state
+
+
+for _ in range(10_000_000):
+    if get_state() == infected:
+        direction *= -1j
+        set_state(flagged)
+    elif get_state() == clean:
+        direction *= 1j
+        set_state(weakened)
+    elif get_state() == weakened:
+        set_state(infected)
+        count += 1
+    elif get_state() == flagged:
+        set_state(clean)
+        direction *= -1
+    else:
+        print("this shouldn't happen")
+
+    position += direction
+
+print(count)
