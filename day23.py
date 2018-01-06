@@ -1,17 +1,8 @@
 def read_instructions(registers, instructions):
     current_instruction = 0
-    mul_count = 0
 
-    while current_instruction < len(instructions):
-        print(current_instruction)
-        action = instructions[current_instruction][0]
-        register = instructions[current_instruction][1]
-
-        if len(instructions[current_instruction]) == 3:
-            value = instructions[current_instruction][2]
-        else:
-            value = instructions[current_instruction][1]
-
+    while current_instruction < 8:
+        action, register, value = instructions[current_instruction]
         value = get_value(registers, value)
 
         if action == 'set':
@@ -20,17 +11,28 @@ def read_instructions(registers, instructions):
             registers[register] -= value
         elif action == 'mul':
             registers[register] *= value
-            mul_count += 1
         elif action == 'jnz':
-            if (register.isdigit() and int(register) != 0) or registers[register] != 0:
+            if get_value(registers, register) != 0:
                 current_instruction += value
-            else:
-                current_instruction += 1
+                continue
 
-        if action != 'jnz':
-            current_instruction += 1
+        current_instruction += 1
 
-    return registers['h']
+    h = 0
+    for b in range(registers['b'], registers['c'] + 1, 17):
+        f = 1
+        h += any(b % x == 0 for x in range(2, b))
+        '''
+        for d in range(2, b + 1, 1):
+            for e in range(2, b + 1, 1):
+                # b must be a factor of d and e so it can't be prime
+                g = d * e - b
+                if g == 0:
+                    f = 0
+        if f == 0:
+            h += 1
+        '''
+    return h
 
 
 def get_value(registers, value):
@@ -42,17 +44,18 @@ def get_value(registers, value):
     return new_value
 
 
-registers = dict()
+registers = {'a': 1, 'b': 0, 'c': 0}
 instructions = list()
 
-with open("resources/day22", "rt") as f:
+with open("resources/day23", "r") as f:
     for line in f:
         split = line.split()
         instructions.append(split)
-        if split[1].isalpha():
-            if split[1] == 'a':
-                registers['a'] = 1
-            else:
-                registers[split[1]] = 0
 
-    print(read_instructions(registers, instructions))
+print(read_instructions(registers, instructions))
+
+
+
+
+
+
